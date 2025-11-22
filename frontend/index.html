@@ -1,0 +1,1146 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    />
+    <title>PillBuddy</title>
+    
+    <style>
+      @font-face {
+        font-family: "Harlow Solid Italic";
+        src: url("./fonts/HarlowSolidItalic.ttf") format("truetype"),
+             url("/static/fonts/HarlowSolidItalic.ttf") format("truetype"),
+             url("fonts/HarlowSolidItalic.ttf") format("truetype");
+        font-weight: normal;
+        font-style: italic;
+        font-display: swap;
+      }
+      :root {
+        --primary-color: #4a90e2;
+        --bg-color: #f5f7fa;
+        --text-color: #333;
+        --white: #ffffff;
+      }
+
+      * {
+        box-sizing: border-box;
+        user-select: none;
+        -webkit-tap-highlight-color: transparent;
+      }
+
+      body {
+        margin: 0;
+        padding: 0;
+        font-family: "Pretendard", -apple-system, BlinkMacSystemFont, system-ui,
+          Roboto, sans-serif;
+        background-color: #e0e0e0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        overflow: hidden;
+      }
+
+      #app-container {
+        width: 100%;
+        max-width: 420px;
+        height: 100%;
+        max-height: 900px;
+        background-color: var(--white);
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+      }
+
+      header {
+        padding: 14px;
+        text-align: center;
+        font-weight: normal;
+        font-size: 1.5rem;
+        font-family: "Harlow Solid Italic", "HarlowSolidItalic", serif;
+        border-bottom: none;
+        background: var(--white);
+        z-index: 10;
+        font-style: italic;
+        /* 폰트 강제 적용 */
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        margin-bottom: 0;
+      }
+
+      .screen {
+        flex: 1;
+        display: none;
+        flex-direction: column;
+        position: absolute;
+        top: 50px;
+        bottom: 0;
+        width: 100%;
+        background: var(--white);
+      }
+
+      .screen.active {
+        display: flex;
+      }
+
+      #screen-1 .content-area,
+      #screen-3 .content-area {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        padding: 24px;
+        text-align: center;
+      }
+
+      #screen-1 .content-area {
+        background-color: #f0f8ff;
+      }
+
+      #screen-1 .start-button {
+        margin-top: 40px;
+        background-color: var(--primary-color);
+        color: var(--white);
+        padding: 16px 32px;
+        border-radius: 30px;
+        font-size: 1.2rem;
+        cursor: pointer;
+        font-weight: bold;
+      }
+
+      #screen-2 .policy-content {
+        display: none;
+      }
+
+      .split-btn-container {
+        flex: 1;
+        display: flex;
+      }
+
+      .split-btn {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        font-size: 1.2rem;
+        font-weight: bold;
+        cursor: pointer;
+      }
+
+      .btn-refuse {
+        background-color: #ff6b6b;
+        color: white;
+      }
+
+      .btn-agree {
+        background-color: #7d9bff;
+        color: white;
+      }
+
+      #screen-3 .content-area {
+        background-color: #f0f8ff;
+        cursor: pointer;
+      }
+
+      .speed-display {
+        font-size: 3rem;
+        font-weight: bold;
+        color: var(--primary-color);
+        margin-bottom: 12px;
+      }
+
+      .speed-hint {
+        color: #666;
+        font-size: 1rem;
+      }
+
+      .speed-confirm {
+        background-color: var(--primary-color);
+        color: white;
+        text-align: center;
+        padding: 60px 80px 100px 80px;  /* 위쪽 줄이고 아래쪽 늘리기 */
+        font-size: 1.5rem;
+        font-weight: bold;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;  /* 또는 flex-start로 더 위로 */
+        flex-direction: column;
+      }
+
+      #screen-4 .camera-view {
+        flex: 1;
+        background-color: #000;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        padding: 16px;
+        position: relative;
+      }
+
+      #camera-preview {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        border-radius: 18px;
+        background-color: #111;
+      }
+
+      .camera-guide {
+        position: absolute;
+        width: 200px;
+        height: 200px;
+        border: 2px dashed rgba(255, 255, 255, 0.8);
+        border-radius: 20px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        color: white;
+        text-align: center;
+        pointer-events: none;
+      }
+
+      .shutter-area {
+        height: 140px;
+        background-color: #111;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+
+      .shutter-btn {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        background-color: white;
+        border: 6px solid #ccc;
+      }
+
+      #screen-5 .loading-container {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+        padding: 24px;
+        gap: 16px;
+      }
+
+      .spinner {
+        width: 50px;
+        height: 50px;
+        border: 6px solid #f3f3f3;
+        border-top: 6px solid var(--primary-color);
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+      }
+
+      @keyframes spin {
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
+      }
+
+      #screen-6 {
+        position: relative;
+        top: 0;
+      }
+
+      .result-container {
+        flex: 1;
+        padding: 24px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        gap: 16px;
+      }
+
+      .pill-img-placeholder {
+        width: 120px;
+        height: 120px;
+        background-color: #ddd;
+        border-radius: 50%;
+        display: none;
+        justify-content: center;
+        align-items: center;
+        font-size: 3rem;
+      }
+
+      .result-text {
+        width: 100%;
+        background-color: #f9f9f9;
+        padding: 18px;
+        border-radius: 14px;
+        font-size: 1rem;
+        line-height: 1.5;
+        text-align: left;
+        min-height: 140px;
+        display: none;
+      }
+
+      .result-meta {
+        width: 100%;
+        font-size: 0.95rem;
+        color: #555;
+        display: none;
+      }
+
+      .followup-card {
+        display: none;
+      }
+
+      #followup-layer {
+        display: none;
+      }
+
+      /* 가운데 버튼 - 다시 듣기 */
+      #replay-button {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        transform: none;
+        z-index: 20;
+        background-color: #4a90e2;
+        color: white;
+        border: none;
+        border-radius: 0;
+        padding: 16px 32px;
+        width: 100%;
+        height: 65%;
+        font-size: 1.5rem;
+        font-weight: bold;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      /* 좌측 하단 버튼 - 처음부터 */
+      #reset-button {
+        position: absolute;
+        top: 65%;
+        bottom: 0;
+        left: 0;
+        z-index: 20;
+        background-color: #ff6b6b;
+        color: white;
+        border: none;
+        border-radius: 0;
+        padding: 16px 24px;
+        width: 50%;
+        height: auto;
+        font-size: 1.2rem;
+        font-weight: bold;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      /* 우측 하단 버튼 - 추가 질문 */
+      #followup-button {
+        position: absolute;
+        top: 65%;
+        bottom: 0;
+        right: 0;
+        z-index: 20;
+        background-color: #7d9bff;
+        color: white;
+        border: none;
+        border-radius: 0;
+        padding: 16px 24px;
+        width: 50%;
+        height: auto;
+        font-size: 1.2rem;
+        font-weight: bold;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .toast {
+        position: absolute;
+        left: 50%;
+        bottom: 30px;
+        transform: translateX(-50%);
+        background: rgba(0, 0, 0, 0.85);
+        color: white;
+        padding: 10px 20px;
+        border-radius: 20px;
+        opacity: 0;
+        font-size: 0.9rem;
+        transition: opacity 0.2s ease;
+      }
+
+      .toast.show {
+        opacity: 1;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="app-container">
+      <header>PillBuddy</header>
+
+      <div id="screen-1" class="screen active">
+        <div class="content-area" id="start-touch-area">
+          <h1>필버디와 함께<br />알약을 확인해볼까요?</h1>
+          <p>화면을 터치하면 안내가 시작됩니다.</p>
+          <div class="start-button">시작하기</div>
+        </div>
+      </div>
+
+      <div id="screen-2" class="screen">
+        <div class="policy-content">
+          <p>
+            안녕하세요, 필버디입니다. 이 서비스는 AI 분석 도구로, 결과가
+            부정확할 수 있어 의학적 판단을 대신할 수 없습니다. 결과는 참고용으로만
+            활용하시고, 더 전문적인 내용은 반드시 의사나 약사와 상담해 주세요. 이
+            내용에 동의하시면 화면 오른쪽, 거절하시면 화면 왼쪽을 터치해주세요.
+          </p>
+        </div>
+        <div class="split-btn-container">
+          <div class="split-btn btn-refuse" id="consent-no">
+            <div>거부</div>
+          </div>
+          <div class="split-btn btn-agree" id="consent-yes">
+            <div>동의</div>
+          </div>
+        </div>
+      </div>
+
+      <div id="screen-3" class="screen">
+        <div class="content-area" id="speed-screen-touch">
+          <div style="font-size: 1.1rem; margin-bottom: 10px">
+            음성 재생 속도를 선택해주세요.
+          </div>
+          <div class="speed-display" id="speed-text">1.0배속</div>
+          <div class="speed-hint">
+            화면을 탭하면 속도가 바뀌고, 더블 탭 또는 아래 버튼으로 확정합니다.
+          </div>
+        </div>
+        <div class="speed-confirm" id="speed-confirm">
+          배속 설정 완료하고 <br /> 촬영 화면으로 이동
+        </div>
+      </div>
+
+      <div id="screen-4" class="screen">
+        <div class="camera-view">
+          <video id="camera-preview" autoplay playsinline></video>
+          <div class="camera-guide">알약을 이 안에 맞춰주세요</div>
+        </div>
+        <div class="shutter-area">
+          <div class="shutter-btn"></div>
+        </div>
+      </div>
+
+      <div id="screen-5" class="screen">
+        <div class="loading-container">
+          <div class="spinner"></div>
+          <h2>분석 중...</h2>
+          <p id="loading-status">서버에 이미지를 전송하고 있습니다.</p>
+        </div>
+      </div>
+
+      <div id="screen-6" class="screen">
+        <div class="result-container">
+          <div class="pill-img-placeholder">💊</div>
+          <div class="result-meta">
+            <div><strong>약 이름:</strong> <span id="result-pill-name">-</span></div>
+            <div id="result-subtitle">
+              설명을 다시 듣고 싶으시면, 화면 가운데에서 윗 부분사이를, 추가 질문이 있으시면 우측 하단을, 다른 약을 촬영하고 싶으시면 좌측 하단버튼을 터치해주세요요.
+            </div>
+          </div>
+          <div class="result-text" id="result-text">
+            분석 결과가 여기에 표시됩니다.
+          </div>
+          <div class="followup-card">
+            <div><strong>마지막 질문:</strong></div>
+            <div id="followup-question">-</div>
+            <div style="margin-top: 10px"><strong>AI 답변:</strong></div>
+            <div id="followup-answer">-</div>
+          </div>
+        </div>
+        <button id="replay-button">다시 듣기</button>
+        <button id="reset-button">처음부터</button>
+        <button id="followup-button">추가 질문</button>
+      </div>
+
+      <div class="toast" id="toast"></div>
+    </div>
+
+    <script>
+      const API_BASE = "";
+      const sessionId = crypto.randomUUID();
+      const PROMPTS = Object.freeze({
+        intro:
+          "안녕하세요. 필버디입니다. 화면을 터치하면 안내를 시작할 수 있습니다.",
+        consent:
+          "안녕하세요, 필버디입니다. 이 서비스는 AI 분석 도구로, 결과가 부정확할 수 있어 의학적 판단을 대신할 수 없습니다. 결과는 참고용으로만 활용하시고, 더 전문적인 내용은 반드시 의사나 약사와 상담해 주세요. 이 내용에 동의하시면 화면 오른쪽, 거절하시면 화면 왼쪽을 터치해해주세요.",
+        consentDenied:
+          "동의를 완료해야 서비스를 이용할 수 있어요. 원하실 때 다시 접속해주세요.",
+        speed:
+          "음성 속도를 선택하는 화면입니다. 화면 가운데 부분을 탭할 때마다 일배속부터 오배속까지 속도를 바꿀 수 있습니다. 두 번 빠르게 탭하거나, 아래 화면 하단을 터치하면 배속이 확정됩니다.",
+        speedConfirmed: "속도 설정을 저장했습니다. 촬영 화면으로 이동합니다.",
+        captureReady:
+          "알약을 화면 중앙에 맞추고, 화면 아무 곳이나 터치하면 촬영됩니다.",
+        shutter: "찰칵. 사진을 촬영했어요.",
+        loading: "알약을 분석 중입니다. 잠시만 기다려주세요.",
+        needPillFirst:
+          "먼저 알약을 촬영해주세요. 지금 촬영 화면으로 이동할게요.",
+        followupPrompt: "추가로 궁금하신 점을 말씀해주세요.",
+        followupProcessing: "질문을 정리하고 있습니다. 잠시만 기다려주세요.",
+        followupUnsupported: "이 기기는 음성 인식을 지원하지 않습니다.",
+        reset:
+          "앱을 다시 시작합니다. 속도를 설정한 뒤 촬영 화면으로 이동해주세요.",
+        error: "오류가 발생했습니다. 잠시 후 다시 시도해주세요.",
+      });
+
+      const speedOptions = [1.0, 1.5, 2.0, 2.5, 3.0, 4.0, 5.0];
+      const speedLabels = [
+        "1.0배속",
+        "1.5배속",
+        "2.0배속",
+        "2.5배속",
+        "3.0배속",
+        "4.0배속",
+        "5.0배속",
+      ];
+
+      const screenElements = document.querySelectorAll(".screen");
+      const speedDisplayEl = document.getElementById("speed-text");
+      const previewVideo = document.getElementById("camera-preview");
+      const loadingStatusEl = document.getElementById("loading-status");
+      const resultTextEl = document.getElementById("result-text");
+      const resultSubtitleEl = document.getElementById("result-subtitle");
+      const resultPillNameEl = document.getElementById("result-pill-name");
+      const followupQuestionEl = document.getElementById("followup-question");
+      const followupAnswerEl = document.getElementById("followup-answer");
+      const followupLayer = document.getElementById("followup-layer");
+      const resetButton = document.getElementById("reset-button");
+      const toastEl = document.getElementById("toast");
+      const screen4El = document.getElementById("screen-4");
+
+      let currentScreen = 1;
+      let speedIndex = 0;
+      let globalPlaybackRate = speedOptions[speedIndex];
+
+      const audioCache = {};
+      let currentAudio = null;
+      let recognition = null;
+      let stream = null;
+
+      let isCapturing = false;
+      let isProcessingFollowup = false;
+      let isListeningFollowup = false;
+
+      let lastPillName = "";
+      let lastScript = "";
+      let lastFollowupQuestion = "";
+      let lastFollowupAnswer = "";
+
+      let toastTimer = null;
+
+      function unlockAudio() {
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        if (AudioContext) {
+          const ctx = new AudioContext();
+          if (ctx.state === "suspended") {
+            ctx.resume();
+          }
+        }
+        const audio = new Audio();
+        audio.src =
+          "data:audio/wav;base64,UklGRigAAABXQVZFZm10IBIAAAABAAEAQB8AAEAfAAABAAgAAABmYWN0BAAAAAAAAABkYXRhAAAAAA==";
+          audio
+            .play()
+          .then(() => console.log("오디오 잠금 해제 성공"))
+          .catch((e) => console.log("오디오 잠금 해제 대기 중", e));
+      }
+
+      function vibrateStrong() {
+        if ("vibrate" in navigator) {
+          navigator.vibrate(700);
+        }
+      }
+
+      document
+        .getElementById("start-touch-area")
+        .addEventListener("click", () => {
+          unlockAudio();
+          goToScreen(2);
+        });
+
+      document
+        .getElementById("consent-yes")
+        .addEventListener("click", () => {
+          vibrateStrong();
+          goToScreen(3);
+        });
+
+      document
+        .getElementById("consent-no")
+        .addEventListener("click", () => {
+          vibrateStrong();
+          handleConsentReject();
+        });
+
+      const speedTouchArea = document.getElementById("speed-screen-touch");
+      speedTouchArea.addEventListener("click", (event) => {
+        if (event.detail === 2) {
+          confirmSpeedSelection();
+          return;
+        }
+        cycleSpeed();
+      });
+      document
+        .getElementById("speed-confirm")
+        .addEventListener("click", confirmSpeedSelection);
+
+      screen4El.addEventListener("click", (event) => {
+        event.stopPropagation();
+        vibrateStrong();
+        captureAndSend();
+      });
+
+      const replayButton = document.getElementById("replay-button");
+      const followupButton = document.getElementById("followup-button");
+
+      replayButton.addEventListener("click", async (event) => {
+        event.stopPropagation();
+        vibrateStrong();
+        if (lastScript) {
+          await playAudio(lastScript);
+        }
+      });
+
+      followupButton.addEventListener("click", (event) => {
+        event.stopPropagation();
+        vibrateStrong();
+        handleFollowupTap();
+      });
+
+      resetButton.addEventListener("click", (event) => {
+        event.stopPropagation();
+        vibrateStrong();
+        resetApp();
+      });
+
+      goToScreen(1);
+
+      function handleConsentReject() {
+        goToScreen(1);
+        showToast("동의 후 이용 가능합니다.");
+        playAudio(PROMPTS.consentDenied);
+      }
+
+      function goToScreen(screenNumber) {
+        currentScreen = screenNumber;
+        screenElements.forEach((el) => el.classList.remove("active"));
+        const target = document.getElementById(`screen-${screenNumber}`);
+        if (target) {
+          target.classList.add("active");
+        }
+        initScreen(screenNumber);
+      }
+
+      function initScreen(screenNumber) {
+        switch (screenNumber) {
+          case 1:
+            // 초기 화면은 무음으로 진입
+            break;
+          case 2:
+            playAudio(PROMPTS.consent);
+            break;
+          case 3:
+            updateSpeedDisplay();
+            playAudio(PROMPTS.speed);
+            break;
+          case 4:
+            prepareCamera();
+            playAudio(PROMPTS.captureReady);
+            break;
+          case 5:
+            // 로딩 화면은 무음으로 진입
+            break;
+          case 6:
+            renderBaseResult();
+            break;
+          default:
+            break;
+        }
+      }
+
+      function stopCamera() {
+        if (stream) {
+          stream.getTracks().forEach((track) => {
+            track.stop();
+          });
+          stream = null;
+        }
+        if (previewVideo && previewVideo.srcObject) {
+          previewVideo.srcObject = null;
+        }
+      }
+
+      async function prepareCamera() {
+        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+          alert("이 브라우저는 카메라를 지원하지 않습니다.");
+          return;
+        }
+        // 기존 스트림이 있으면 정리하고 새로 시작
+        if (stream) {
+          stopCamera();
+        }
+        try {
+          stream = await navigator.mediaDevices.getUserMedia({
+            video: { facingMode: { exact: "environment" } },
+            audio: false,
+          });
+        } catch (error) {
+          console.warn("후면 카메라 접근 실패, 전면으로 전환합니다.", error);
+          try {
+            stream = await navigator.mediaDevices.getUserMedia({
+              video: true,
+              audio: false,
+            });
+          } catch (fallbackError) {
+            alert("카메라 권한을 허용해주세요: " + fallbackError.message);
+            return;
+          }
+        }
+        previewVideo.srcObject = stream;
+      }
+
+      function updateSpeedDisplay() {
+        speedDisplayEl.textContent = speedLabels[speedIndex];
+      }
+
+      function cycleSpeed() {
+        speedIndex = (speedIndex + 1) % speedOptions.length;
+        globalPlaybackRate = speedOptions[speedIndex];
+        updateSpeedDisplay();
+        playAudio(`${speedLabels[speedIndex]}입니다.`);
+        if (currentAudio) {
+          currentAudio.playbackRate = globalPlaybackRate;
+        }
+      }
+
+      function confirmSpeedSelection() {
+        playAudio(PROMPTS.speedConfirmed);
+        setTimeout(() => goToScreen(4), 500);
+      }
+
+      async function captureAndSend() {
+        if (isCapturing) {
+          return;
+        }
+        if (!previewVideo.videoWidth || !previewVideo.videoHeight) {
+          showToast("카메라 준비 중입니다. 잠시 후 다시 시도해주세요.");
+          return;
+        }
+        isCapturing = true;
+        goToScreen(5);
+        playAudio(PROMPTS.shutter);
+        setTimeout(() => playAudio(PROMPTS.loading), 1400);
+        try {
+          const canvas = document.createElement("canvas");
+          canvas.width = previewVideo.videoWidth;
+          canvas.height = previewVideo.videoHeight;
+          const ctx = canvas.getContext("2d");
+          ctx.drawImage(previewVideo, 0, 0, canvas.width, canvas.height);
+          const blob = await new Promise((resolve) =>
+            canvas.toBlob(resolve, "image/jpeg")
+          );
+          if (!blob) {
+            throw new Error("이미지를 캡처하지 못했습니다.");
+          }
+          const formData = new FormData();
+          formData.append("file", blob, "capture.jpg");
+          loadingStatusEl.textContent = "이미지를 분석 중입니다.";
+          const response = await fetch(
+            `${API_BASE}/api/v1/pills/identify?session_id=${sessionId}`,
+            {
+              method: "POST",
+              body: formData,
+            }
+          );
+          if (!response.ok) {
+            const err = await response.json().catch(() => ({}));
+            throw new Error(err.detail || "서버 요청에 실패했습니다.");
+          }
+          const data = await response.json();
+          lastPillName = data.pill_name || "";
+          lastScript =
+            data.script ||
+            "결과를 받아오지 못했습니다. 다시 촬영해 주세요.";
+          lastFollowupQuestion = "";
+          lastFollowupAnswer = "";
+          renderBaseResult();
+          goToScreen(6);
+          await playAudio(lastScript);
+        } catch (error) {
+          console.error(error);
+          showToast("촬영 또는 분석 중 오류가 발생했습니다.");
+          playAudio(PROMPTS.error);
+          goToScreen(4);
+        } finally {
+          isCapturing = false;
+        }
+      }
+
+      function renderBaseResult() {
+        resultPillNameEl.textContent = lastPillName || "-";
+        resultTextEl.innerHTML = formatText(
+          lastScript || "아직 분석된 결과가 없습니다."
+        );
+        resultSubtitleEl.textContent =
+          "화면 아무 곳이나 터치하신 뒤 말로 질문해주세요.";
+        setFollowupCard(lastFollowupQuestion, lastFollowupAnswer);
+      }
+
+      function setFollowupCard(question, answer) {
+        followupQuestionEl.innerHTML = question ? formatText(question) : "-";
+        followupAnswerEl.innerHTML = answer ? formatText(answer) : "-";
+      }
+
+      function renderFollowupListening() {
+        resultSubtitleEl.textContent = "지금 질문을 말씀해주세요.";
+        setFollowupCard("-", "질문을 듣고 있습니다...");
+      }
+
+      function renderFollowupPending(question) {
+        resultSubtitleEl.textContent = "AI가 답변을 준비 중입니다.";
+        setFollowupCard(question, "답변을 준비하고 있습니다...");
+      }
+
+      function renderFollowupAnswer(question, answer) {
+        lastFollowupQuestion = question;
+        lastFollowupAnswer = answer;
+        resultSubtitleEl.textContent =
+          "화면 아무 곳이나 터치하신 뒤 말로 질문해주세요.";
+        setFollowupCard(question, answer);
+      }
+
+      async function handleFollowupTap() {
+        if (currentScreen !== 6) {
+          return;
+        }
+        if (!lastPillName) {
+          showToast("먼저 알약을 촬영해주세요.");
+          await playAudio(PROMPTS.needPillFirst);
+          goToScreen(4);
+          return;
+        }
+        if (isProcessingFollowup || isListeningFollowup) {
+          showToast("현재 질문을 처리 중입니다.");
+          return;
+        }
+        if (!canUseSpeechRecognition()) {
+          showToast("음성 인식을 지원하지 않습니다.");
+          playAudio(PROMPTS.followupUnsupported);
+          return;
+        }
+        stopAllAudio();
+        cancelSpeechRecognition(); // 기존 음성 인식이 있으면 정리
+        
+        // "추가로 궁금하신 점을 말씀해주세요" 안내 음성 재생 후 음성 인식 시작
+        await playAudio(PROMPTS.followupPrompt);
+        
+        // 음성 인식 시작
+        startSpeechRecognition({
+          onStart: () => {
+            isListeningFollowup = true;
+            renderFollowupListening();
+            showToast("질문을 말씀해주세요.");
+          },
+          onResult: async (transcript) => {
+            const question = transcript || "";
+            if (!question || question.trim().length === 0) {
+              showToast("질문을 인식하지 못했습니다. 다시 시도해주세요.");
+              isListeningFollowup = false;
+              renderBaseResult();
+              return;
+            }
+            
+            isListeningFollowup = false;
+            isProcessingFollowup = true;
+            renderFollowupPending(question);
+            
+            try {
+              // RAG를 활용하여 서버에 질문 전송 및 답변 받기
+              const data = await sendFollowup(question);
+              
+              if (data && data.answer) {
+                // 답변을 화면에 표시
+                renderFollowupAnswer(question, data.answer);
+                // 답변을 음성으로 재생
+                await playAudio(data.answer);
+              } else {
+                showToast("답변을 받지 못했습니다.");
+                playAudio(PROMPTS.error);
+                renderBaseResult();
+              }
+            } catch (error) {
+              console.error("추가 질문 처리 오류:", error);
+              showToast("질문 처리 중 오류가 발생했습니다.");
+              playAudio(PROMPTS.error);
+              renderBaseResult();
+            } finally {
+              isProcessingFollowup = false;
+            }
+          },
+          onEnd: () => {
+            isListeningFollowup = false;
+            // 처리 중이 아니면 기본 화면으로 복귀
+            if (!isProcessingFollowup) {
+              renderBaseResult();
+            }
+          },
+          onError: (event) => {
+            console.error("음성 인식 오류:", event);
+            isListeningFollowup = false;
+            if (!isProcessingFollowup) {
+              renderBaseResult();
+            }
+            showToast("음성 인식 중 오류가 발생했습니다. 다시 시도해주세요.");
+          },
+        });
+      }
+
+      function canUseSpeechRecognition() {
+        return (
+          "SpeechRecognition" in window || "webkitSpeechRecognition" in window
+        );
+      }
+
+      function startSpeechRecognition({
+        onStart,
+        onResult,
+        onEnd,
+        onError,
+      }) {
+        const SpeechRecognition =
+          window.SpeechRecognition || window.webkitSpeechRecognition;
+        if (!SpeechRecognition) {
+          return;
+        }
+        if (recognition) {
+          try {
+          recognition.abort();
+          } catch (error) {
+            console.warn("기존 음성 인식을 중단하지 못했습니다.", error);
+        }
+        }
+        recognition = new SpeechRecognition();
+        recognition.lang = "ko-KR";
+        recognition.interimResults = false;
+        recognition.maxAlternatives = 1;
+        recognition.onstart = () => onStart?.();
+        recognition.onend = () => onEnd?.();
+        recognition.onerror = (event) => onError?.(event);
+        recognition.onresult = async (event) => {
+          const transcript = (event.results[0][0].transcript || "").trim();
+          await onResult?.(transcript);
+        };
+        try {
+        recognition.start();
+        } catch (error) {
+          console.warn("음성 인식을 시작하지 못했습니다.", error);
+          onError?.(error);
+        }
+      }
+
+      function cancelSpeechRecognition() {
+        if (!recognition) {
+          return;
+        }
+        try {
+          recognition.onstart = null;
+          recognition.onresult = null;
+          recognition.onend = null;
+          recognition.onerror = null;
+          recognition.abort();
+        } catch (error) {
+          console.warn("음성 인식을 중단하지 못했습니다.", error);
+        } finally {
+          recognition = null;
+        }
+      }
+
+      async function sendFollowup(question) {
+        try {
+          const response = await fetch(`${API_BASE}/api/v1/pills/followup`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              session_id: sessionId,
+              question,
+            }),
+          });
+          if (!response.ok) {
+            const err = await response.json().catch(() => ({}));
+            throw new Error(err.detail || "추가 질문 요청에 실패했습니다.");
+          }
+          const data = await response.json();
+          lastPillName = data.pill_name || lastPillName;
+          renderFollowupAnswer(question, data.answer || "");
+          return data;
+        } catch (error) {
+          console.error(error);
+          showToast("추가 질문 처리 중 오류가 발생했습니다.");
+          playAudio(PROMPTS.error);
+          renderBaseResult();
+          return null;
+        }
+      }
+
+      function resetApp() {
+        stopAllAudio();
+        cancelSpeechRecognition();
+        stopCamera(); // 카메라 스트림 정리
+        isProcessingFollowup = false;
+        isListeningFollowup = false;
+        isCapturing = false; // 촬영 상태도 초기화
+        lastPillName = "";
+        lastScript = "";
+        lastFollowupQuestion = "";
+        lastFollowupAnswer = "";
+        goToScreen(4);
+        // initScreen(4)에서 prepareCamera()와 playAudio(PROMPTS.captureReady)를 자동으로 호출
+      }
+
+      function showToast(message, duration = 2000) {
+        if (!toastEl) {
+          return;
+        }
+        toastEl.textContent = message;
+        toastEl.classList.add("show");
+        if (toastTimer) {
+          clearTimeout(toastTimer);
+        }
+        toastTimer = setTimeout(() => {
+          toastEl.classList.remove("show");
+        }, duration);
+      }
+
+      function formatText(text = "") {
+        return escapeHtml(text).replace(/\n/g, "<br />");
+      }
+
+      function escapeHtml(text = "") {
+        return text
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;")
+          .replace(/'/g, "&#039;");
+      }
+
+      function stopAudio() {
+        if (!currentAudio) {
+          return;
+        }
+        try {
+          currentAudio.pause();
+          currentAudio.currentTime = 0;
+        } catch (error) {
+          console.warn("오디오 중단 실패", error);
+        }
+        currentAudio = null;
+      }
+
+      function stopAllAudio() {
+        stopAudio();
+      }
+
+      async function playAudio(text) {
+        const normalized = (text || "").trim();
+        if (!normalized) {
+          return;
+        }
+        try {
+          stopAudio();
+          const audioBase64 = await getAudioBase64(normalized);
+          await playBase64Audio(audioBase64);
+        } catch (error) {
+          console.warn("음성 재생 실패", error);
+          showToast("음성을 재생하지 못했습니다.");
+        }
+      }
+
+      async function getAudioBase64(text) {
+        if (audioCache[text]) {
+          return audioCache[text];
+        }
+        const response = await fetch(`${API_BASE}/api/v1/tts`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ text }),
+        });
+        if (!response.ok) {
+          const err = await response.json().catch(() => ({}));
+          throw new Error(err.detail || "TTS 요청 실패");
+        }
+        const data = await response.json();
+        if (!data?.audio_base64) {
+          throw new Error("TTS 응답에 오디오가 없습니다.");
+        }
+        audioCache[text] = data.audio_base64;
+        return data.audio_base64;
+      }
+
+      function playBase64Audio(base64) {
+        return new Promise((resolve) => {
+          if (currentAudio) {
+            currentAudio.pause();
+            currentAudio = null;
+          }
+          const audio = new Audio(`data:audio/mp3;base64,${base64}`);
+          audio.playbackRate = globalPlaybackRate;
+          audio.muted = true;
+          const playPromise = audio.play();
+          if (playPromise !== undefined) {
+            playPromise
+              .then(() => {
+                setTimeout(() => {
+                  audio.muted = false;
+                }, 100);
+                currentAudio = audio;
+              })
+              .catch((error) => {
+                console.warn("자동 재생 막힘, 사용자 터치 필요", error);
+                resolve();
+              });
+          }
+          audio.onended = () => {
+            if (currentAudio === audio) currentAudio = null;
+            resolve();
+          };
+          audio.onerror = (event) => {
+            console.error("오디오 에러", event);
+            if (currentAudio === audio) currentAudio = null;
+            resolve();
+          };
+        });
+      }
+    </script>
+  </body>
+</html>
+

@@ -1,0 +1,9 @@
+fastapi
+uvicorn
+python-multipart
+requests
+python-dotenv
+ultralytics
+pillow
+google-generativeai
+azure-cognitiveservices-speech
